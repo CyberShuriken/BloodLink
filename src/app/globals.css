@@ -2,65 +2,104 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap');
+
 @layer base {
   :root {
-    /* Shadcn semantic tokens — blood theme */
-    --background:          0 0% 100%;
-    --foreground:          224 71% 4%;
-    --card:                0 0% 100%;
-    --card-foreground:     224 71% 4%;
-    --popover:             0 0% 100%;
-    --popover-foreground:  224 71% 4%;
-    --primary:             0 75% 42%;      /* #C41E3A */
-    --primary-foreground:  0 0% 100%;
-    --secondary:           0 30% 96%;
-    --secondary-foreground:0 50% 25%;
-    --muted:               220 14% 96%;
-    --muted-foreground:    220 9% 46%;
-    --accent:              0 75% 42%;
-    --accent-foreground:   0 0% 100%;
-    --destructive:         0 84% 60%;
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 0 75% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 30% 96%;
+    --secondary-foreground: 0 50% 25%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 0 75% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border:              220 13% 91%;
-    --input:               220 13% 91%;
-    --ring:                0 75% 42%;
-    --radius:              0.75rem;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 0 75% 42%;
+    --radius: 0.75rem;
 
-    /* Raw hex tokens for non-Tailwind CSS */
-    --blood-red:   #C41E3A;
-    --blood-dark:  #8B0000;
-    --blood-light: #F5C6CE;
-    --blood-muted: #FDF0F2;
+    --blood-red: #C41E3A;
+    --blood-dark: #8B0000;
+    --blood-light: #FFE4E8;
+    --blood-muted: #FFF0F2;
   }
 
   .dark {
-    --background:          224 71% 4%;
-    --foreground:          0 0% 98%;
-    --card:                224 71% 4%;
-    --card-foreground:     0 0% 98%;
-    --popover:             224 71% 4%;
-    --popover-foreground:  0 0% 98%;
-    --primary:             0 75% 55%;
-    --primary-foreground:  0 0% 100%;
-    --secondary:           215 28% 17%;
-    --secondary-foreground:0 0% 98%;
-    --muted:               215 28% 17%;
-    --muted-foreground:    215 20% 65%;
-    --accent:              215 28% 17%;
-    --accent-foreground:   0 0% 98%;
-    --destructive:         0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --border:              215 28% 17%;
-    --input:               215 28% 17%;
-    --ring:                0 75% 55%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 6%;
+    --card-foreground: 213 31% 91%;
+    --primary: 0 72% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 16% 57%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 0 75% 55%;
+    --background: 224 71% 4%;
+    --card: 224 71% 6%;
+    --popover: 224 71% 6%;
+    --popover-foreground: 213 31% 91%;
+    --accent: 215 28% 17%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'DM Sans', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', sans-serif;
+  }
+}
+
+@layer utilities {
+  .blood-gradient {
+    background: linear-gradient(135deg, #C41E3A 0%, #8B0000 100%);
+  }
+  .blood-gradient-soft {
+    background: linear-gradient(135deg, #FFE4E8 0%, #FFF0F2 100%);
+  }
+  .glass {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+  }
+  .text-blood { color: #C41E3A; }
+  .bg-blood { background-color: #C41E3A; }
+  .border-blood { border-color: #C41E3A; }
+  .pulse-ring {
+    animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(196, 30, 58, 0.4); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(196, 30, 58, 0); }
+    100% { transform: scale(0.95); }
+  }
+  .animate-count-up {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
