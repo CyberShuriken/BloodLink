@@ -39,6 +39,13 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        blood: {
+          DEFAULT: "#C41E3A",
+          dark: "#8B0000",
+          light: "#F5C6CE",
+          muted: "#FDF0F2",
+        },
+        crimson: "#C41E3A",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -54,10 +61,20 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "pulse-crimson": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.05)", opacity: "0.85" },
+        },
+        "flash-red": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.6" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-crimson": "pulse-crimson 1.5s ease-in-out infinite",
+        "flash-red": "flash-red 1s ease-in-out infinite",
       },
     },
   },
