@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { UserProfileContext } from '@/components/layout/UserProfileContext'
 import { Navbar } from '@/components/layout/Navbar'
@@ -31,12 +30,7 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  // Get the current pathname from headers for profile-complete redirect check
-  const headersList = headers()
-  const pathname = headersList.get('x-pathname') ?? headersList.get('next-url') ?? ''
-
-  // Redirect to profile complete if not done yet (except when already on that page)
-  if (!profile.is_profile_complete && !pathname.includes('/profile/complete')) {
+  if (!profile.is_profile_complete) {
     redirect('/profile/complete')
   }
 

@@ -20,14 +20,29 @@ const divisionEnum = z.enum([
 const bangladeshiPhoneRegex = /^(\+88)?01[3-9]\d{8}$/
 
 // ============================================================
+// loginSchema — Requirements 4.1
+// ============================================================
+
+export const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+// ============================================================
 // registerSchema — Requirements 4.1
 // ============================================================
 
-export const registerSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  full_name: z.string().min(2, 'Full name must be at least 2 characters'),
-})
+export const registerSchema = z
+  .object({
+    full_name: z.string().min(2, 'Full name must be at least 2 characters'),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirm_password: z.string(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords don't match",
+    path: ['confirm_password'],
+  })
 
 // ============================================================
 // profileCompleteSchema — Requirements 4.2, 4.6

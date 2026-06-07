@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { Activity, Heart, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { BloodTypeBadge } from '@/components/shared/BloodTypeBadge'
 import { EligibilityBanner } from '@/components/shared/EligibilityBanner'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -80,105 +81,146 @@ export default async function DashboardPage() {
       ? 'Bronze'
       : 'Newcomer'
 
+  const isDonor = profile.role === 'donor'
+
   return (
     <div>
-      {/* Real-time emergency alert — client component, no render */}
       <EmergencyAlert profile={profile} />
 
-      {/* ── Mobile layout (block, hidden on lg+) ──────────────────────── */}
-      <div className="block lg:hidden space-y-4 p-4">
-        <AvailabilityToggle profile={profile} />
+      {isDonor ? (
+        <>
+          <div className="block lg:hidden space-y-4 p-4">
+            <AvailabilityToggle profile={profile} />
 
-        <EligibilityBanner
-          isEligible={profile.is_eligible}
-          lastDonationDate={profile.last_donation_date ?? null}
-        />
+            <EligibilityBanner
+              isEligible={profile.is_eligible}
+              lastDonationDate={profile.last_donation_date ?? null}
+            />
 
-        <div>
-          <h2 className="text-base font-semibold mb-3">Nearby Emergency Alerts</h2>
-          {requests.length === 0 ? (
-            <EmptyState message="No active emergencies nearby. You're all caught up!" />
-          ) : (
-            <div className="space-y-3">
-              {requests.map((request) => (
-                <RequestCard key={request.id} request={request} />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Desktop layout (3-column grid, hidden on <lg) ─────────────── */}
-      <div className="hidden lg:grid grid-cols-3 gap-6 p-6">
-        {/* Left column: profile + stats + toggle */}
-        <div className="space-y-4">
-          {/* Donor card */}
-          <div className="flex flex-col items-center gap-3 rounded-xl border bg-card p-6 text-center">
-            <Avatar className="h-20 w-20">
-              {profile.avatar_url && (
-                <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
-              )}
-              <AvatarFallback className="bg-blood text-white text-xl font-bold">
-                {getInitials(profile.full_name)}
-              </AvatarFallback>
-            </Avatar>
             <div>
-              <p className="font-bold text-lg leading-tight">{profile.full_name}</p>
-              {profile.blood_type && (
-                <div className="flex justify-center mt-2">
-                  <BloodTypeBadge bloodType={profile.blood_type} size="md" />
+              <h2 className="text-base font-semibold mb-3">Nearby Emergency Alerts</h2>
+              {requests.length === 0 ? (
+                <EmptyState message="No active emergencies nearby. You're all caught up!" />
+              ) : (
+                <div className="space-y-3">
+                  {requests.map((request) => (
+                    <RequestCard key={request.id} request={request} />
+                  ))}
                 </div>
-              )}
-              {profile.present_district && (
-                <p className="text-muted-foreground text-sm mt-1">
-                  {profile.present_district}
-                </p>
               )}
             </div>
           </div>
 
-          {/* Stats */}
-          <StatsCard
-            title="Total Donations"
-            value={profile.total_donations}
-            icon={Heart}
-            trend={profile.total_donations > 0 ? 'up' : 'neutral'}
-            description={profile.total_donations > 0 ? 'Keep it up!' : undefined}
-          />
-          <StatsCard
-            title="Requests Nearby"
-            value={nearbyCount}
-            icon={MapPin}
-            trend={nearbyCount > 0 ? 'up' : 'neutral'}
-            description={nearbyCount > 0 ? `${nearbyCount} in your district` : undefined}
-          />
-          <StatsCard
-            title="Donor Rank"
-            value={donorRank}
-            icon={Activity}
-          />
+          <div className="hidden lg:grid grid-cols-3 gap-6 p-6">
+            <div className="space-y-4">
+              <div className="flex flex-col items-center gap-3 rounded-xl border bg-card p-6 text-center">
+                <Avatar className="h-20 w-20">
+                  {profile.avatar_url && (
+                    <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+                  )}
+                  <AvatarFallback className="bg-blood text-white text-xl font-bold">
+                    {getInitials(profile.full_name)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-bold text-lg leading-tight">{profile.full_name}</p>
+                  {profile.blood_type && (
+                    <div className="flex justify-center mt-2">
+                      <BloodTypeBadge bloodType={profile.blood_type} size="md" />
+                    </div>
+                  )}
+                  {profile.present_district && (
+                    <p className="text-muted-foreground text-sm mt-1">
+                      {profile.present_district}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-          <AvailabilityToggle profile={profile} />
-        </div>
+              <StatsCard
+                title="Total Donations"
+                value={profile.total_donations}
+                icon={Heart}
+                trend={profile.total_donations > 0 ? 'up' : 'neutral'}
+                description={profile.total_donations > 0 ? 'Keep it up!' : undefined}
+              />
+              <StatsCard
+                title="Requests Nearby"
+                value={nearbyCount}
+                icon={MapPin}
+                trend={nearbyCount > 0 ? 'up' : 'neutral'}
+                description={nearbyCount > 0 ? `${nearbyCount} in your district` : undefined}
+              />
+              <StatsCard
+                title="Donor Rank"
+                value={donorRank}
+                icon={Activity}
+              />
 
-        {/* Center column: map */}
-        <div>
-          <h2 className="text-base font-semibold mb-3">Live Blood Request Map</h2>
-          <MapErrorBoundary fallbackMessage="Unable to load map">
-            <DonorMap profile={profile} requests={requests} />
-          </MapErrorBoundary>
-        </div>
+              <AvailabilityToggle profile={profile} />
+            </div>
 
-        {/* Right column: activity feed */}
-        <div>
-          <h2 className="text-base font-semibold mb-3">Donation History</h2>
-          {donations.length === 0 && rawDonations === null ? (
-            <SkeletonLoader variant="table" />
-          ) : (
-            <ActivityFeed donations={donations} />
-          )}
+            <div>
+              <h2 className="text-base font-semibold mb-3">Live Blood Request Map</h2>
+              <MapErrorBoundary fallbackMessage="Unable to load map">
+                <DonorMap profile={profile} requests={requests} />
+              </MapErrorBoundary>
+            </div>
+
+            <div>
+              <h2 className="text-base font-semibold mb-3">Donation History</h2>
+              {donations.length === 0 && rawDonations === null ? (
+                <SkeletonLoader variant="table" />
+              ) : (
+                <ActivityFeed donations={donations} />
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="space-y-6 p-4 lg:p-6">
+          <div className="rounded-3xl border bg-white p-6 shadow-sm">
+            <h2 className="font-display text-2xl font-bold text-slate-900">Need blood?</h2>
+            <p className="mt-2 text-slate-600">Post a request and notify eligible donors in your area immediately.</p>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <Button asChild className="blood-gradient text-white">
+                <a href="/requests/new">Post a new request</a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href="/requests">Browse active requests</a>
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="rounded-3xl border bg-white p-6 shadow-sm">
+              <p className="text-sm text-slate-500">Open requests nearby</p>
+              <p className="mt-3 text-3xl font-bold text-slate-900">{nearbyCount}</p>
+            </div>
+            <div className="rounded-3xl border bg-white p-6 shadow-sm">
+              <p className="text-sm text-slate-500">Urgent requests</p>
+              <p className="mt-3 text-3xl font-bold text-slate-900">{requests.filter((r) => r.urgency === 'critical').length}</p>
+            </div>
+            <div className="rounded-3xl border bg-white p-6 shadow-sm">
+              <p className="text-sm text-slate-500">Available donors in your district</p>
+              <p className="mt-3 text-3xl font-bold text-slate-900">{donorRank}</p>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border bg-white p-6 shadow-sm">
+            <h2 className="font-semibold text-slate-900">Live requests</h2>
+            {requests.length === 0 ? (
+              <EmptyState message="No active requests at the moment." />
+            ) : (
+              <div className="space-y-4 mt-4">
+                {requests.slice(0, 4).map((request) => (
+                  <RequestCard key={request.id} request={request} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

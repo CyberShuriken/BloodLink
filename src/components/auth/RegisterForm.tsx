@@ -7,26 +7,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
+import { registerSchema } from '@/lib/validations'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import type { z } from 'zod'
 
-const registerFormSchema = z
-  .object({
-    full_name: z.string().min(2, 'Full name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirm_password: z.string(),
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: "Passwords don't match",
-    path: ['confirm_password'],
-  })
-
-type RegisterFormInput = z.infer<typeof registerFormSchema>
+type RegisterFormInput = z.infer<typeof registerSchema>
 
 export function RegisterForm() {
   const router = useRouter()
@@ -37,7 +26,7 @@ export function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormInput>({ resolver: zodResolver(registerFormSchema) })
+  } = useForm<RegisterFormInput>({ resolver: zodResolver(registerSchema) })
 
   const onSubmit = async (values: RegisterFormInput) => {
     const supabase = createClient()

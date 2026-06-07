@@ -11,8 +11,8 @@ import type { Profile, BloodRequest } from '@/types'
 
 // ── Leaflet default icon fix (broken in Next.js without this) ──────────────
 function fixLeafletIcons() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  delete (L.Icon.Default.prototype as any)._getIconUrl
+  const defaultIcon = L.Icon.Default.prototype as unknown as { _getIconUrl?: string }
+  delete defaultIcon._getIconUrl
   L.Icon.Default.mergeOptions({
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
     iconRetinaUrl:
@@ -55,10 +55,11 @@ const donorIcon = L.divIcon({
 
 interface DonorMapInnerProps {
   profile: Profile
-  requests: BloodRequest[]
+  requests?: BloodRequest[]
+  donors?: Profile[]
 }
 
-export default function DonorMapInner({ profile, requests }: DonorMapInnerProps) {
+export default function DonorMapInner({ profile, requests = [], donors = [] }: DonorMapInnerProps) {
   useEffect(() => {
     fixLeafletIcons()
   }, [])
@@ -91,6 +92,31 @@ export default function DonorMapInner({ profile, requests }: DonorMapInnerProps)
           </Popup>
         </Marker>
       )}
+
+      {/* Donor markers */}
+      {donors
+        .filter((donor) => donor.latitude != null && donor.longitude != null)
+        .map((donor) => (
+          <Marker
+            key={donor.id}
+            position={[donor.latitude as number, donor.longitude as number]}
+            icon={L.divIcon({
+              className: '',
+              html: `<div style="width:18px;height:18px;border-radius:50%;background:#C41E3A;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35)"></div>`,
+              iconSize: [18, 18],
+              iconAnchor: [9, 9],
+              popupAnchor: [0, -10],
+            })}
+          >
+            <Popup>
+              <div className="space-y-1 text-sm">
+                <p className="font-semibold">{donor.full_name}</p>
+                <p className="text-muted-foreground">{donor.blood_type ?? 'Unknown type'}</p>
+                <p className="text-muted-foreground text-xs">{donor.present_district}, {donor.present_division}</p>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
 
       {/* Blood request markers */}
       {requests

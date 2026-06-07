@@ -4,7 +4,8 @@ import type { Profile, BloodRequest } from '@/types'
 
 interface DonorMapProps {
   profile: Profile
-  requests: BloodRequest[]
+  requests?: BloodRequest[]
+  donors?: Profile[]
 }
 
 const DonorMapInner = dynamic(() => import('./DonorMapInner'), {
