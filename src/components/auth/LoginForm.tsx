@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { z } from 'zod'
+import { z } from 'zod'
 
 type LoginInput = z.infer<typeof loginSchema>
 
@@ -21,10 +21,12 @@ export function LoginForm() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
 
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) })
 
@@ -40,6 +42,25 @@ export function LoginForm() {
     }
     router.push('/dashboard')
     router.refresh()
+  }
+
+  const handleForgotPassword = async () => {
+    const email = getValues('email')?.trim()
+    if (!email || !z.string().email().safeParse(email).success) {
+      toast.error('Enter your email above first, then click "Forgot password?"')
+      return
+    }
+    setIsResetting(true)
+    const supabase = createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    })
+    setIsResetting(false)
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+    toast.success('Password reset email sent. Check your inbox.')
   }
 
   const handleGoogleSignIn = async () => {
@@ -118,10 +139,11 @@ export function LoginForm() {
               <Label htmlFor="password">Password</Label>
               <button
                 type="button"
-                onClick={() => {/* TODO: forgot password */}}
-                className="text-xs text-blood hover:underline"
+                onClick={handleForgotPassword}
+                disabled={isResetting}
+                className="text-xs text-blood hover:underline disabled:opacity-50"
               >
-                Forgot password?
+                {isResetting ? 'Sending…' : 'Forgot password?'}
               </button>
             </div>
             <div className="relative">
