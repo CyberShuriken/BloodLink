@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema } from '@/lib/validations'
+import { registerSchema } from '@/lib/validations'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,27 +14,34 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-type LoginFormValues = z.infer<typeof loginSchema>
+type RegisterFormValues = z.infer<typeof registerSchema>
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      full_name: '',
       email: '',
       password: '',
+      confirm_password: '',
     },
   })
 
-  async function onSubmit(values: LoginFormValues) {
+  async function onSubmit(values: RegisterFormValues) {
     setIsLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
+        options: {
+          data: {
+            full_name: values.full_name,
+          },
+        },
       })
 
       if (error) {
@@ -42,8 +49,8 @@ export default function LoginPage() {
         return
       }
 
-      toast.success('Logged in successfully')
-      router.push('/dashboard')
+      toast.success('Account created! Please complete your profile.')
+      router.push('/profile/complete')
       router.refresh()
     } catch (err) { console.error(err);
       toast.error('Something went wrong. Please try again.')
@@ -71,9 +78,9 @@ export default function LoginPage() {
   return (
     <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm">
       <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-display font-bold">Welcome back</CardTitle>
+        <CardTitle className="text-2xl font-display font-bold">Create an account</CardTitle>
         <CardDescription>
-          Enter your email to sign in to your account
+          Enter your information to get started
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -97,6 +104,19 @@ export default function LoginPage() {
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="full_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -123,17 +143,30 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="confirm_password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button type="submit" className="w-full bg-blood hover:bg-blood/90" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Creating account...' : 'Create Account'}
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-blood hover:underline font-medium">
-            Register
+          Already have an account?{' '}
+          <Link href="/login" className="text-blood hover:underline font-medium">
+            Login
           </Link>
         </div>
       </CardFooter>
