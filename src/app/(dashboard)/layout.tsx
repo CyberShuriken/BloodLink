@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { UserProfileContext } from '@/components/layout/UserProfileContext'
+import { UserProfileProvider } from '@/components/layout/UserProfileContext'
 import { Navbar } from '@/components/layout/Navbar'
 import { MobileNav } from '@/components/layout/MobileNav'
 import type { Profile } from '@/types'
@@ -43,12 +43,12 @@ export default async function DashboardLayout({
   const notificationCount = unreadCount ?? 0
 
   return (
-    <UserProfileContext.Provider value={profile}>
+    <UserProfileProvider profile={profile}>
       <Navbar profile={profile} unreadCount={notificationCount} />
       <MobileNav profile={profile} unreadCount={notificationCount} />
       <main className="pb-20 md:pb-0 pt-14 md:pt-16 min-h-screen">
         {children}
       </main>
-    </UserProfileContext.Provider>
+    </UserProfileProvider>
   )
 }
