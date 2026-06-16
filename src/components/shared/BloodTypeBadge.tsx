@@ -14,10 +14,12 @@ const sizeClasses = {
 }
 
 export function BloodTypeBadge({ bloodType, size = 'md' }: BloodTypeBadgeProps) {
+  const colorClass = BLOOD_TYPE_COLORS[bloodType] || 'bg-slate-100 text-slate-800 border-slate-300'
+
   return (
     <span
       className={cn(
-        BLOOD_TYPE_COLORS[bloodType],
+        colorClass,
         'font-mono font-bold rounded-full border',
         sizeClasses[size]
       )}

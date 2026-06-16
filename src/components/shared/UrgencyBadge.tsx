@@ -9,6 +9,8 @@ interface UrgencyBadgeProps {
 export function UrgencyBadge({ urgency }: UrgencyBadgeProps) {
   const config = URGENCY_CONFIG[urgency]
 
+  if (!config) return null
+
   return (
     <span
       role="status"
