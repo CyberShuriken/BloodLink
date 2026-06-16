@@ -70,6 +70,7 @@ export default function DonorMapInner({ profile, requests = [], donors = [] }: D
       center={center}
       zoom={12}
       style={{ height: '400px', width: '100%', borderRadius: '0.75rem' }}
+      scrollWheelZoom={false}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

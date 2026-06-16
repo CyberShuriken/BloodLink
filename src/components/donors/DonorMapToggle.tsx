@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { DonorMap } from '@/components/donors/DonorMap'
+import { MapErrorBoundary } from '@/components/shared/MapErrorBoundary'
 import type { BloodRequest, Profile } from '@/types'
 
 interface DonorMapToggleProps {
@@ -43,7 +44,9 @@ export function DonorMapToggle({ profile, requests, donors }: DonorMapToggleProp
 
       {activeView === 'map' ? (
         <div className="rounded-3xl overflow-hidden border bg-white shadow-sm">
-          <DonorMap profile={profile} requests={requests} donors={donors} />
+          <MapErrorBoundary fallbackMessage="Unable to load donor map">
+            <DonorMap profile={profile} requests={requests} donors={donors} />
+          </MapErrorBoundary>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
