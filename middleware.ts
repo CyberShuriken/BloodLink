@@ -53,7 +53,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from auth pages
-  if ((pathname === '/register' || pathname === '/profile/complete') && user) {
+  if (pathname === '/register' && user) {
     const dashboardUrl = new URL('/dashboard', request.url)
     return NextResponse.redirect(dashboardUrl)
   }
