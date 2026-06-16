@@ -10,13 +10,12 @@ import { UrgencyBadge } from '@/components/shared/UrgencyBadge'
 import type { Profile, BloodRequest } from '@/types'
 
 // ── Leaflet default icon fix (broken in Next.js without this) ──────────────
-function fixLeafletIcons() {
+if (typeof window !== 'undefined') {
   const defaultIcon = L.Icon.Default.prototype as unknown as { _getIconUrl?: string }
   delete defaultIcon._getIconUrl
   L.Icon.Default.mergeOptions({
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl:
-      'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   })
 }
@@ -60,9 +59,6 @@ interface DonorMapInnerProps {
 }
 
 export default function DonorMapInner({ profile, requests = [], donors = [] }: DonorMapInnerProps) {
-  useEffect(() => {
-    fixLeafletIcons()
-  }, [])
 
   const center: [number, number] = [
     profile.latitude ?? 23.8103,
