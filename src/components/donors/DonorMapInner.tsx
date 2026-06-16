@@ -9,16 +9,8 @@ import { BloodTypeBadge } from '@/components/shared/BloodTypeBadge'
 import { UrgencyBadge } from '@/components/shared/UrgencyBadge'
 import type { Profile, BloodRequest } from '@/types'
 
-// ── Leaflet default icon fix (broken in Next.js without this) ──────────────
-if (typeof window !== 'undefined') {
-  const defaultIcon = L.Icon.Default.prototype as unknown as { _getIconUrl?: string }
-  delete defaultIcon._getIconUrl
-  L.Icon.Default.mergeOptions({
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  })
-}
+// Leaflet default icons are often broken in Next.js builds.
+// We use divIcons for everything to avoid external asset dependency issues.
 
 // ── Urgency-coloured divIcon factory ─────────────────────────────────────
 function makeUrgencyIcon(urgency: 'critical' | 'urgent' | 'normal') {
@@ -78,7 +70,7 @@ export default function DonorMapInner({ profile, requests = [], donors = [] }: D
       />
 
       {/* Donor's own marker */}
-      {profile.latitude && profile.longitude && (
+      {typeof profile.latitude === 'number' && typeof profile.longitude === 'number' && (
         <Marker
           position={[profile.latitude, profile.longitude]}
           icon={donorIcon}
