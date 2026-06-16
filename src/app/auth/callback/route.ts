@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { ensureProfile } from '@/lib/profile-bootstrap'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -13,21 +14,7 @@ export async function GET(request: Request) {
     // Ensure profile exists (trigger may have failed)
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .single()
-
-      if (!profile) {
-        // Create profile manually if trigger failed
-        await supabase.from('profiles').insert({
-          id: user.id,
-          email: user.email!,
-          full_name: user.user_metadata?.full_name ?? '',
-          role: 'donor',
-        })
-      }
+      await ensureProfile(supabase, user)
     }
   }
   return NextResponse.redirect(`${origin}/dashboard`)

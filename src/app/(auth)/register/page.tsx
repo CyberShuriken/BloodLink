@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema } from '@/lib/validations'
 import { createClient } from '@/lib/supabase/client'
+import { ensureProfile } from '@/lib/profile-bootstrap'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,7 +35,7 @@ export default function RegisterPage() {
   async function onSubmit(values: RegisterFormValues) {
     setIsLoading(true)
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
@@ -49,10 +50,26 @@ export default function RegisterPage() {
         return
       }
 
+      // Check if session exists (email confirmation may be required)
+      if (!data.session) {
+        toast.success('Check your email to confirm your account before continuing.')
+        return
+      }
+
+      // Session exists — bootstrap profile client-side before redirect
+      if (data.user) {
+        const profile = await ensureProfile(supabase, data.user)
+        if (!profile) {
+          toast.error('Could not set up your profile. Please try again.')
+          return
+        }
+      }
+
       toast.success('Account created! Please complete your profile.')
       router.push('/profile/complete')
       router.refresh()
-    } catch (err) { console.error(err);
+    } catch (err) {
+      console.error(err)
       toast.error('Something went wrong. Please try again.')
     } finally {
       setIsLoading(false)
@@ -70,7 +87,8 @@ export default function RegisterPage() {
       if (error) {
         toast.error(error.message)
       }
-    } catch (err) { console.error(err);
+    } catch (err) {
+      console.error(err)
       toast.error('Could not connect to Google')
     }
   }
