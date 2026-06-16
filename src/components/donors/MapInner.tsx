@@ -4,15 +4,15 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { Profile } from '@/types'
 
-// Fix for default marker icons in Leaflet with Next.js
-if (typeof window !== 'undefined') {
-  delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  })
-}
+// Leaflet default icons are often broken in Next.js builds.
+// We use divIcons for everything to avoid external asset dependency issues.
+const customIcon = typeof window !== 'undefined' ? L.divIcon({
+  className: '',
+  html: `<div style="width:18px;height:18px;border-radius:50%;background:#C41E3A;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35)"></div>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+  popupAnchor: [0, -10],
+}) : null;
 
 export default function MapInner({ donors }: { donors: Profile[] }) {
   const valid = donors.filter(d => d.latitude && d.longitude)
@@ -27,7 +27,7 @@ export default function MapInner({ donors }: { donors: Profile[] }) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       {valid.map(donor => (
-        <Marker key={donor.id} position={[donor.latitude!, donor.longitude!]}>
+        <Marker key={donor.id} position={[donor.latitude!, donor.longitude!]} icon={customIcon!}>
           <Popup>
             <p className="font-semibold">{donor.full_name}</p>
             <p className="text-red-600 font-bold">{donor.blood_type}</p>
